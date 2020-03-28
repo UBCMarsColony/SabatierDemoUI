@@ -22,14 +22,13 @@ app.once('ready', () => {
 		// Set icon to Sabatier project logo
 		icon: path.join(__dirname, "../assets/sabatier-logo.png")
 	})
-
+	
+	// Get the HTML file for the main window
 	window.loadURL(path.join(__dirname, "../window.html"));
-	// window.registerShortcut("CmdOrCtrl+C", () => {
 		
-	// });
-  
-  
+  	// Wait until the window is ready to show, then show it
 	window.once('ready-to-show', () => {
 		window.show();
 	})  
 })
+
