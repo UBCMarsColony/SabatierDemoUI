@@ -23,28 +23,8 @@ import * as charts from "./dist/window.charts";
 // IIFE To initialize the window
 $(() => {
 	charts.init_charts();
-	charts.init_selector(reactor_data.datasets.map((dataset: Dataset) => {
-		const selector_elements = [{
-			label: dataset.name,
-			id: dataset.id,
-			set_or_series: "set"
-		}];
-		
-		for (const series of dataset.series)
-		{
-			selector_elements.push({
-				label: series.name,
-				id: dataset.id,
-				set_or_series: "series"
-			});
-		}
-		
-		return selector_elements;
-	}));
-
-	// reactor_status = 	require('./window.reactorstatus');
-	// temperature_plot = 	require('./window.temperatureplot');
-	// massflow_plot =		require('./window.massflowplot');	
+	charts.init_selector(reactor_data.datasets);
+	
 	charts.primary.select(reactor_data.datasets[0]);
 	notebook.append("UBC MARS COLONY\nReactor UI Initialized Successfully\n");
 });
@@ -55,7 +35,7 @@ $(document).ready(function () {
 		if (serial.connected())
 			return;
 		serial.detect()
-			.then((ports: Array<any>) => {
+			.then((ports: Array<any>) => {			
 				// console.log(ports)
 				if (ports.length === 0)
 				{
@@ -94,25 +74,6 @@ $(document).ready(function () {
 			.catch((e: Error) => alert(e));
 	}, 500);
 });
-
-function select_plot(selector: HTMLSelectElement)
-{
-	// Determines a dataset from the data
-	const dataset = reactor_data.datasets.find((dset: Dataset) => dset.id === Number(selector.value));
-	if (!dataset)
-		return;
-	if (selector.options[selector.selectedIndex].className === "series")
-		charts.primary.select(dataset, dataset.series.find((ds: Dataseries) => selector.options[selector.selectedIndex].innerHTML.includes(ds.name)).id);
-	else
-		charts.primary.select(dataset);
-	
-	// Highlights the selected option
-	for (let i = 0; i < selector.options.length; i++)
-		selector.options[i].id =
-			i === selector.selectedIndex ? "selected" : "";
-	// Sets the option to the title option
-	selector.value = "title";	
-}
 
 function routine_connect_toggle()
 {

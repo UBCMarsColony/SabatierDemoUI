@@ -4,6 +4,10 @@ import Chart from "chart.js";
 const MICRO_TIME_SPAN = 15;
 const CONVOLUTER_STRENGTH = 0.20
 
+// This is used to color the dataseries of the plot
+const colors = ["#00AAAA", "#FF0000", "#0000FF", "#B8860B"];
+
+
 export let micro: Chart = null;
 export let macro: Chart = null;
 export let current_plot: string = null;
@@ -182,54 +186,63 @@ export function update(dataset: Dataset) {
 	macro.update();
 }
 
-// Each axis parameter contains the following:
-//		type_id: ID of the type of data to show;
-//		dataset_id: ID of the specific dataset of the type
-// If x_axis is undefined, it defaults to time
-export function select(dataset: Dataset, visible_dataset_id?: number)
+// Author: Thomas Richmond
+// Purpose: Called whenever the user selects a new data set or series to plot on the charts.
+// 			The function handles the switching and convolutions of data.
+// Parameters: 	dataset [Dataset] - The dataset to display (i.e. temperature, flow rate...)
+//				show_ids [Array<number>] - If set, specifies the IDs of datasets to show.
+export function select(dataset: Dataset, show_ids?: Array<number>)
 {
+	// We need to do a bunch of configuration for each chart. Thus, we make a method
+	// that can be used by both charts.
 	function configure_chart(chart: Chart) {
+		// Clear any data that is currently being drawn on the plot. 
 		chart.data.datasets = [];  // Don't do .length = 0, as this may clear the actual dataset
 		
-		const colors = ["#00AAAA", "#FF0000", "#0000FF", "#B8860B"];
+		// Iterate over the dataset we have been given and insert each series into the plot with formatting.
 		for (let i = 0; i < dataset.series.length; i++)
 		{
-			chart.data.datasets[i] = {
-				// The data itself
+			// The chart data is inserted and formatted as follows:
+			chart.data.datasets[i] =
+			{
+				// The data itself is injected into the plot
 				label: dataset.series[i].name,
 				data: dataset.series[i].data.map((d: Datapoint) => ({x: d.time, y: d.value}) as Chart.ChartPoint),
-				// Datapoint formatting
+				// The datapoints are formatted in a consistent way
 				radius: 1,
 				backgroundColor: colors[i],  // Point color
-				// Curve formatting
+				// The Bezier curves connecting the datapoints is formatted in a consistent way
 				showLine: true,
 				borderWidth: 1,  // Line width
 				borderColor: colors[i],
 				fill: false,  // Don't fill the space under the curve
-				// Other
-				hidden: (  // Draws or hides the data
-					visible_dataset_id != undefined 
-					&& dataset.series[i].id !== visible_dataset_id
-				)
 			};
-			// Options
+			
+			// If the show_ids parameter is not undefined, we should only show a subset of these series.
+			if (show_ids != undefined)
+				chart.data.datasets[i].hidden =
+					show_ids.some((id: number) => id !== dataset.series[i].id)
+			
+			// Set the axes for the charts based on the data we are using
 			chart.options.scales.xAxes[0].scaleLabel.labelString = 'Time [s]';
 			chart.options.scales.yAxes[0].scaleLabel.labelString = '[' + dataset.units + ']';
 		}
 	};
 	
-	// Set the charts to the current data
+	// Using the function we defined above, inject the selected data into the charts.
 	configure_chart(macro);
 	configure_chart(micro);
 	
-	// Reduce the amount of data we show
+	// Handle a few last things:
+	// 1. Reduce the amount of data contained in the macro-scale plot by convoluting it
 	convolute_chart(macro, CONVOLUTER_STRENGTH)
-	
-	// Update the chart visuals
+	// 2. Ensure the charts refresh immediately to show this update
 	macro.update();
 	micro.update();
-	
+	// 3. Update the title label for the plots with the name of the dataset.
 	document.getElementById("dataplot-title").innerHTML = dataset.name;
+	
+	// Update the global parameter describing what's currently being shown
 	current_plot = dataset.name;
 }
 
