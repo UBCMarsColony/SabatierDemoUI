@@ -107,7 +107,6 @@ select {
 		
 		.console {
 			width: 100%;
-			height: 90%;
 			color: whitesmoke;
 			background-color: black;
 			text-align: left;
@@ -115,6 +114,12 @@ select {
 			span {
 				font-family: monospace;
 			}
+		}
+		.status-bar {
+		}
+
+		.output {	
+			height: 80%;
 		}
 	}
 	
