@@ -21,59 +21,33 @@ import * as charts from "./dist/window.charts";
 
 
 // IIFE To initialize the window
-$(() => {
+function init() {
+	// Status Indicators
+	status_indicator.update(serial.SerialStatus.UNDETERMINED);
+	
+	// Charts
 	charts.init_charts();
 	charts.init_selector(reactor_data.datasets);
-	
 	charts.primary.select(reactor_data.datasets[0]);
 	notebook.append("UBC MARS COLONY\nReactor UI Initialized Successfully\n");
-});
 
-$(document).ready(function () {
-	status_indicator.update(status_indicator.SCANNING);
-	setInterval(() => {
-		if (serial.connected())
-			return;
-		serial.detect()
-			.then((ports: Array<any>) => {			
-				// console.log(ports)
-				if (ports.length === 0)
-				{
-					status_indicator.update(status_indicator.SCANNING);
-					return;
-				}
-				else
-				{
-					status_indicator.update(status_indicator.ATTACHED);
-					if (ports.length > 1)
-						notebook.append("Multiple COM Ports detected! Selecting " + ports[0].path, notebook.WARNING);
-					// console.log("PORT DETECTED: " + ports[0].path);
-					serial.attach(ports[0].path, (bytestream: number[]) => {
-						if (!bytestream)
-							return;
-						
-						let parsed_dataset: Dataset;
-						try {
-							parsed_dataset = serial.parse_reactor_data(bytestream);
-						} catch (e) {
-							console.log("Parse Failed! Ignoring...");
-							return;
-						}
-						if (!parsed_dataset)
-							return;
-						
-						parsed_dataset.name = reactor_data.name_from_id(parsed_dataset.id);
-						for (let i = 0; i < parsed_dataset.series.length; i++)
-							parsed_dataset.series[i].name = reactor_data.name_from_id(parsed_dataset.id, parsed_dataset.series[i].id);
-						
-						reactor_data.update(parsed_dataset);
-						charts.primary.update(parsed_dataset);						
-					});
-				}
-			})
-			.catch((e: Error) => alert(e));
-	}, 500);
-});
+	// Serial
+	serial.init()
+	serial.bind(status_indicator.update, serial.SerialBinding.STATUS)
+	serial.bind(reactor_data.update,     serial.SerialBinding.DATA)
+	serial.bind(charts.primary.update,   serial.SerialBinding.DATA)
+}
+
+function loop () {
+	serial.run()
+}
+
+
+// INIT & LOOP FUNCTION IMPLEMENTATION
+// IIFE that calls the init function once as soon as this file loads
+$(init);  
+// Calls the loop function routinely after the window completely loads
+$(document).ready(() => setInterval(loop, 500));
 
 function routine_connect_toggle()
 {
@@ -87,12 +61,10 @@ function routine_connect()
 {
 	if (serial.open())
 	{
-		status_indicator.update(status_indicator.CONNECTED);
 		notebook.append("Reactor Connection Opened!");
 	}
 	else
 	{
-		status_indicator.update(status_indicator.DISCONNECTED);
 		notebook.append("Reactor Connection Failed", notebook.ERROR);
 	}
 }

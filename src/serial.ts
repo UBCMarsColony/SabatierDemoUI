@@ -1,24 +1,112 @@
 import SerialPort from "serialport";
-import { Dataset, Dataseries, Datapoint } from "./models/data.model";
+import { Dataset, Dataseries, Datapoint, name_from_id } from "./models/data.model";
+
+export enum SerialBinding
+{
+	DATA,
+	STATUS
+};
+// All bindings are stored here:
+const bindings: any = {
+	data: [],
+	status: []
+}
+
+export enum SerialStatus
+{
+	UNDETERMINED,  // Placeholder for startup
+	SCANNING,      // Looking for compatible serial devices
+	ATTACHED,      // Serial connection available and ready
+	CONNECTED,     // Connected to a compatible serial device
+	DISCONNECTED   // Unexpected closure of serial connection
+}
 
 let port: SerialPort = null;
 
-export function detect()
+export function init()
 {
-// @ts-ignore
-	return SerialPort.list();
+	// Stub
 }
 
-type SerialReceiveCallback = (bytestream: Array<number>) => void;
-export function attach(path: string, on_receive: SerialReceiveCallback)
+export function bind(cb: Function, bind_id: SerialBinding)
 {
-// @ts-ignore
+	// When binding a function, we need to make sure it gets
+	// put into the correct binding array. This switch case
+	// ensures that happens.
+	switch (bind_id) 
+	{
+		case SerialBinding.DATA:
+			bindings.data.push(cb);
+			break;
+		case SerialBinding.STATUS: 
+			bindings.status.push(cb); 
+			break;
+	}
+}
+
+export function run()
+{
+	if (connected())
+		return;  // Everything is fine!
+	
+	// At this point, we know we are not connected to any ports.
+	// Let's see if we can attach to one...
+	// @ts-ignore  (Usual type PortInfo doesn't seem to work)
+	SerialPort.list().then((ports: Array<any>) =>
+	{
+		if (ports.length === 0)
+		{
+			bindings.status.forEach((status_cb: Function) =>
+				status_cb(SerialStatus.SCANNING));
+		}
+		else 
+		{
+			attach(ports[0].path, DEFAULT_PORT_CB);
+			bindings.status.forEach((status_cb: Function) =>
+				status_cb(SerialStatus.ATTACHED));
+		}
+	}).catch(alert);
+}
+
+
+type SerialReceiveCallback = (bytestream: Array<number>) => void;
+const DEFAULT_PORT_CB: SerialReceiveCallback = (bytestream: Array<number>) =>
+{
+	if (!bytestream)  // The bytestream isn't defined, so exit immediately
+		return;
+
+	let parsed_dataset: Dataset;
+	try
+	{
+		parsed_dataset = parse_reactor_data(bytestream)
+	}
+	catch (e)
+	{
+		console.log("Reactor Data Parse Failed with trace: ", e)
+		return;
+	}
+	if (!parsed_dataset)  // Something went wrong in the parse routine
+		return;       // that wasn't caught; exit now
+
+	parsed_dataset.name = name_from_id(parsed_dataset.id)
+	for (let series of parsed_dataset.series)
+		series.name = name_from_id(parsed_dataset.id, series.id);
+
+	bindings.data.forEach((data_cb: Function) => 
+		data_cb(parsed_dataset));
+};
+
+
+function attach(path: string, on_receive: SerialReceiveCallback)
+{
+	// @ts-ignore
 	port = new SerialPort(path, {
 		baudRate: 2000000,  // 2 Mb/s
-		autoOpen: false
+		autoOpen: false	    // Wait for the user to connect
 	});
 	
-	const parser = port.pipe(new SerialPort.parsers.Ready({delimiter: 'RSIP>>'}));
+	const parser = port.pipe(
+		new SerialPort.parsers.Ready({delimiter: 'RSIP>>'}));
 	parser.on('ready', () => console.log('Data incoming'));
 	parser.on('data', on_receive);
 }
@@ -30,6 +118,9 @@ export function open(): boolean
 	
 	// TODO implement async handling for port opening successes and errors
 	port.open();
+	bindings.status.forEach((status_cb: Function) => 
+		status_cb(SerialStatus.CONNECTED))
+	
 	return true;
 }
 
@@ -44,14 +135,12 @@ export function close()
 
 export function connected(): boolean
 {
-	if (port == null)
-		return false;
-	if (!port.isOpen)
-		return false;
-	return true;
+	return  port == null  ? false :
+		!port.isOpen ?  false :
+		true;
 }
 
-export function parse_reactor_data(bytestream: Array<number>): Dataset
+function parse_reactor_data(bytestream: Array<number>): Dataset
 {
 	bytestream = bytestream.slice(6);  // Take off the indicator "RSIP>>"
 	
