@@ -36,6 +36,8 @@
 	</div>
 	
 	<div class="horz-container">
+		
+		<!-- PANEL 1/3: REACTOR COMMAND BUTTONS -->
 		<div class="content-panel reactor-commands">
 			<div class="button-stack">
 				<button id="connect-toggle-button" style="margin-bottom: 10ex;" onclick="routine_connect_toggle()">
@@ -49,14 +51,19 @@
 				</button>
 			</div>
 		</div>
+
+		<!-- PANEL 2/3: CONSOLE -->
 		<div class="content-panel reactor-console">
-			<p class="console status-bar">
-				<span style="width: 50%">Reactor Status:</span>
-				<span style="width: 50%" id="reactor-status">Unknown</span>
+			<p class="status-bar">
+				<span>Reactor Status:</span>
+				<span id="reactor-status">Unknown</span>
 			</p>
 			<pre id="reactor-console-output" class="console output"></pre>
 			<button onclick="notebook.clear()">CLEAR CONSOLE</button>
 		</div>
+
+
+		<!-- PANEL 3/3: DATAPLOTS -->
 		<div class="content-panel reactor-dataplots">
 			<h4 id="dataplot-title" style="text-align: center">-</h4>
 			<div style="position: relative; width: 100%; height: 45%">
