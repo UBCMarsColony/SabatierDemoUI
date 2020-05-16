@@ -2,7 +2,7 @@ import { Dataset, Datapoint } from "./models/data.model";
 import Chart from "chart.js";
 
 const MICRO_TIME_SPAN = 15;
-const CONVOLUTER_STRENGTH = 0.20
+const CONVOLVER_STRENGTH = 0.20
 
 // This is used to color the dataseries of the plot
 const colors = ["#00AAAA", "#FF0000", "#0000FF", "#B8860B"];
@@ -168,7 +168,7 @@ export function update(dataset: Dataset) {
 	micro.options.scales.xAxes[0].ticks.suggestedMax = Math.ceil(max_xval / 2) * 2;
 	
 	// Convolute the macro-scale plot data so we don't keep re-rendering a ton of data
-	convolute_chart(macro, CONVOLUTER_STRENGTH);
+	convolve_chart(macro, CONVOLVER_STRENGTH);
 	
 	// Cut off the micro-scale plot
 	// 1. Make sure the axis scales consistently
@@ -235,7 +235,7 @@ export function select(dataset: Dataset, show_ids?: Array<number>)
 	
 	// Handle a few last things:
 	// 1. Reduce the amount of data contained in the macro-scale plot by convoluting it
-	convolute_chart(macro, CONVOLUTER_STRENGTH)
+	convolve_chart(macro, CONVOLVER_STRENGTH)
 	// 2. Ensure the charts refresh immediately to show this update
 	macro.update();
 	micro.update();
@@ -249,20 +249,20 @@ export function select(dataset: Dataset, show_ids?: Array<number>)
 /*
  * Author: Thomas Richmond
  * Purpose: Reduce the number of datapoints in the chart such that we
- *			retain as few points as needed while still indicating the
- *			plot behaviour. For instance, the sequential values 
- *			{ 0.9, 1.1, 1.05, 1.02, 0.95 } may as well be represented by
- *			a single datapoint (~1) and we can let a bezier curve fit the
- *			rest of the the data.
+ *	    retain as few points as needed while still indicating the
+ *	    plot behaviour. For instance, the sequential values 
+ *	    { 0.9, 1.1, 1.05, 1.02, 0.95 } may as well be represented by
+ *	    a single datapoint (~1) and we can let a bezier curve fit the
+ *	    rest of the the data.
  * Parameters:  chart [Chart] - The chart whose data you wish to convolute
  *		strength [number] - The maximum percent error between datapoints
- *					for which data will be convoluted.
- *					Value must be positive.
+ *				    for which data will be convolved.
+ *				    Value must be positive.
  */
-function convolute_chart(chart: Chart, strength: number)
+function convolve_chart(chart: Chart, strength: number)
 {
 	if (strength < 0)
-		throw new RangeError("Convoluter strength cannot be less than zero!");
+		throw new RangeError("Convolver strength cannot be less than zero!");
 	
 	for (let i = 0; i < chart.data.datasets.length; i++)
 	{
@@ -281,13 +281,13 @@ function convolute_chart(chart: Chart, strength: number)
 				.map((dp: Chart.ChartPoint) => dp.y as number);
 			
 			// Convolute the data:
-			// 	If the percent difference of x3 and x1 is within the convoluter strength, 
+			// 	If the percent difference of x3 and x1 is within the convolver strength, 
 			// 	then we consider x2 as being unimportant to the overall trend of the data.
 			if (Math.abs(x1 - x3) / (Math.abs(x1)/2 + Math.abs(x3)/2) < strength)
 				conv_buffer.splice(n - 2, 1);
 		}
 		
-		// Repopulate the chart series with the convoluted data.
+		// Repopulate the chart series with the convolved data.
 		chart.data.datasets[i].data = conv_buffer;
 	}
 }
