@@ -20,15 +20,17 @@ export enum SerialBinding
 
 // Serial Event Binding Definitions
 type StatusBinding = (status: SerialStatus) => void;
-type DataBinding   = (data:   Bytestream) => void;
+type DataBinding   = (data:   Dataset) => void;
 type BindingStore = {
 	status: Array<StatusBinding>
 	data:   Array<DataBinding>
 };
 
 // All bindings are stored here:
-const bindings: BindingStore;
-
+const bindings: BindingStore = {
+	status: [],
+	data: []
+};
 
 // This contains information for the Serial port we attach/connect to.
 let port: SerialPort = null;
@@ -63,8 +65,7 @@ const DEFAULT_PORT_CB: SerialReceiveCallback = (bytestream: Bytestream) =>
 
 export function init()
 {
-	bindings.status = [];
-	bindings.data   = [];
+	// Stub
 }
 
 export function bind(cb: Function, bind_id: SerialBinding)
