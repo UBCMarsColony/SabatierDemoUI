@@ -22,6 +22,7 @@
 	
 </head>
 
+
 <body>
 	<div class="title-container">
 		<div class="title-logo">
@@ -35,9 +36,10 @@
 	</div>
 	
 	<div class="horz-container">
+		
+		<!-- PANEL 1/3: REACTOR COMMAND BUTTONS -->
 		<div class="content-panel reactor-commands">
 			<div class="button-stack">
-				<p>Reactor Status: <span id="reactor-status">Unknown</span></p>
 				<button id="connect-toggle-button" style="margin-bottom: 10ex;" onclick="routine_connect_toggle()">
 					CONNECT
 				</button>
@@ -47,15 +49,21 @@
 				<button onclick="routine_stop()">
 					REACTOR STOP
 				</button>
-				<button style="background-color: #FF0000" onclick="notebook.append('Emergency STOP Requested', notebook.severity.ERROR)">
-					EMERGENCY STOP
-				</button>
 			</div>
 		</div>
+
+		<!-- PANEL 2/3: CONSOLE -->
 		<div class="content-panel reactor-console">
-			<pre id="reactor-console-output" class="console"></pre>
+			<p class="status-bar">
+				<span style="text-align: right">Reactor Status:</span>
+				<span style="text-align: left" id="reactor-status">Unknown</span>
+			</p>
+			<pre id="reactor-console-output" class="console output"></pre>
 			<button onclick="notebook.clear()">CLEAR CONSOLE</button>
 		</div>
+
+
+		<!-- PANEL 3/3: DATAPLOTS -->
 		<div class="content-panel reactor-dataplots">
 			<h4 id="dataplot-title" style="text-align: center">-</h4>
 			<div style="position: relative; width: 100%; height: 45%">
