@@ -104,7 +104,6 @@ select {
 	.reactor-console {
 		width: 28%;
 		height: inherit;
-		text-align: center;
 		margin-left: auto;
 		margin-right: auto;	
 		
@@ -113,9 +112,11 @@ select {
 			background-color: black;
 			margin-bottom: 1px;
 
-			span {	
-				width: 50%;
+			span {
+				display: inline-block;
 				margin: 0;
+				padding: 0;
+				width: 40%;
 			}
 		}
 
