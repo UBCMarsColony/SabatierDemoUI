@@ -8,6 +8,8 @@ import reactor_data from './dist/reactor.data';
 
 // @ts-ignore
 import * as serial from './dist/serial';
+// @ts-ignore
+import { SerialStatus, SerialBinding } from "./dist/models/serial.model"
 import SerialPort from 'serialport';  // Type
 
 // UI Elements
@@ -23,7 +25,7 @@ import * as charts from "./dist/window.charts";
 // IIFE To initialize the window
 function init() {
 	// Status Indicators
-	status_indicator.update(serial.SerialStatus.UNDETERMINED);
+	status_indicator.update(SerialStatus.UNDETERMINED);
 	
 	// Charts
 	charts.init_charts();
@@ -33,9 +35,9 @@ function init() {
 
 	// Serial
 	serial.init()
-	serial.bind(status_indicator.update, serial.SerialBinding.STATUS)
-	serial.bind(reactor_data.update,     serial.SerialBinding.DATA)
-	serial.bind(charts.primary.update,   serial.SerialBinding.DATA)
+	serial.bind(status_indicator.update, SerialBinding.STATUS)
+	serial.bind(reactor_data.update,     SerialBinding.DATA)
+	serial.bind(charts.primary.update,   SerialBinding.DATA)
 }
 
 function loop () {
@@ -85,5 +87,4 @@ function routine_stop()
 {
 	notebook.append("Stop Routine Not Implemented", notebook.ERROR);
 }
-
 

@@ -1,30 +1,7 @@
 import SerialPort from "serialport";
 import { Dataset, Dataseries, Datapoint, name_from_id } from "./models/data.model";
-
-type Bytestream = Array<number>;
-
-export enum SerialStatus
-{
-	UNDETERMINED,  // Placeholder for startup
-	SCANNING,      // Looking for compatible serial devices
-	ATTACHED,      // Serial connection available and ready
-	CONNECTED,     // Connected to a compatible serial device
-	DISCONNECTED   // Unexpected closure of serial connection
-}
-
-export enum SerialBinding
-{
-	DATA,
-	STATUS
-};
-
-// Serial Event Binding Definitions
-type StatusBinding = (status: SerialStatus) => void;
-type DataBinding   = (data:   Dataset) => void;
-type BindingStore = {
-	status: Array<StatusBinding>
-	data:   Array<DataBinding>
-};
+import { Bytestream, SerialStatus, SerialReceiveCallback,
+         SerialBinding, StatusBinding, DataBinding, BindingStore} from "./models/serial.model";
 
 // All bindings are stored here:
 const bindings: BindingStore = {
@@ -35,8 +12,6 @@ const bindings: BindingStore = {
 // This contains information for the Serial port we attach/connect to.
 let port: SerialPort = null;
 // We need some default behaviour whenever some data comes over the serial connection;
-// Deine a type and default callback to go with it.
-type SerialReceiveCallback = (bytestream: Bytestream) => void;
 const DEFAULT_PORT_CB: SerialReceiveCallback = (bytestream: Bytestream) =>
 {
 	if (!bytestream)  // The bytestream isn't defined, so exit immediately
