@@ -40,15 +40,24 @@
 		<!-- PANEL 1/3: REACTOR COMMAND BUTTONS -->
 		<div class="content-panel reactor-commands">
 			<div class="button-stack">
-				<button id="connect-toggle-button" style="margin-bottom: 10ex;" onclick="routine_connect_toggle()">
+				<button id="connect-toggle-button" onclick="routine_connect_toggle()">
 					CONNECT
 				</button>
-				<button onclick="routine_start()">
-					REACTOR START
-				</button>
-				<button onclick="routine_stop()">
+				<button disabled id="reactor-stop-button" 
+				 style="margin-bottom: 10ex"
+				 onclick="routine_stop(this)">
 					REACTOR STOP
 				</button>
+				
+				<select id="command-selector">
+					<option selected disabled hidden value="title">Select Command</option>
+					<option>Reactor Start</option>
+					<option>Argon Purge</option>
+					<option>Run Diagnostics</option>
+				
+				</select>
+				<button disabled id="execute-command-button"
+			 	 onclick="execute_command()">Execute</button>
 			</div>
 		</div>
 
@@ -65,21 +74,26 @@
 
 		<!-- PANEL 3/3: DATAPLOTS -->
 		<div class="content-panel reactor-dataplots">
+			<!--
 			<h4 id="dataplot-title" style="text-align: center">-</h4>
+			-->
+			<div id="dataplot-selectors" style="text-align: center">
+				<select id="dataplot-selector-preset" 
+				 onchange="charts.select(this)">
+					<option selected disabled hidden 
+					 value="title"> 
+						Select Plot
+					</option>
+				</select>
+			</div>
+
 			<div style="position: relative; width: 100%; height: 45%">
 				<canvas id="dataplot-micro" class="chart"></canvas>
 			</div>
 			<div style="position: relative; width: 100%; height: 40%">
 				<canvas id="dataplot-macro" class="chart"></canvas>
 			</div>
-			<div id="dataplot-selectors" style="text-align: center">
-				<select id="dataplot-selector-preset" onchange="charts.select(this)">
-					<option selected disabled hidden value="title">Select Plot</option>
-				</select>
-				<!-- <select id="dataplot_selector_custom" onchange="alert('Not Implemented')"> -->
-					<!-- <option selected disabled value="title">Show Custom Chart</option> -->
-					<!-- <option onclick=><i>Add</i></option> -->
-				<!-- </select> -->
+			<div style="text-align: center">
 				<button onclick="charts.popped.pop(charts.primary.current_plot)">[] -> [[=]</button>
 				<button onclick="charts.popped.close_all()">[[X]</button>
 			</div>
