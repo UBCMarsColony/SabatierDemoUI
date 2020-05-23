@@ -1,4 +1,4 @@
-import { SerialStatus } from "./serial"
+import { SerialStatus } from "./models/serial.model"
 
 // Lookup table for status strings
 type StatusGData = {  // Graphical Data lookup for display purposes
