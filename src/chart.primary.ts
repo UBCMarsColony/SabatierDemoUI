@@ -239,10 +239,7 @@ export function select(dataset: Dataset, show_ids?: Array<number>)
 	// 2. Ensure the charts refresh immediately to show this update
 	macro.update();
 	micro.update();
-	// 3. Update the title label for the plots with the name of the dataset.
-	document.getElementById("dataplot-title").innerHTML = dataset.name;
-	
-	// Update the global parameter describing what's currently being shown
+	// 3. Update the global parameter describing what's currently being shown
 	current_plot = dataset.name;
 }
 
@@ -291,3 +288,4 @@ function convolve_chart(chart: Chart, strength: number)
 		chart.data.datasets[i].data = conv_buffer;
 	}
 }
+

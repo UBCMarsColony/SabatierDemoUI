@@ -28,28 +28,28 @@ button {
 	padding: 1ex 2em;
 	margin: 1ex 0;
 
-	:hover {
+	&:hover {
 		background-color: orange;
 	}
 
-	:disabled {
-		background-color: grey;
+	&:disabled {
+		background-color: $mc-orangegrey;
 	}
 }
 
 select {
-	color: whitesmoke;
-	background-color: orangered;
-	padding: 1ex 2em;
+	color: black;
+	border: 0;
+	padding: 1ex 1em;
 	margin: 1ex 0;
 
+	&:hover {
+		background-color: $mc-orangegrey;
+		border-bottom: 1;
+	}
+
 	option {
-		color: black;
-		background-color: $mc-orange;
-	
-		:disabled {
-			text-decoration: underline;
-		}
+		background-color: $mc-orangegrey;	
 	}
 }
 
@@ -65,8 +65,8 @@ select {
 
 	.title-logo {
 		height: inherit;
-		position: absolute;	// Element ignores default HTML positioning */
-		z-index: 1;			//Places element below the text */
+		position: absolute;  // Element ignores default HTML positioning
+		z-index: 1;  //Places element below the text
 
 		img {
 			height: 75%;
@@ -95,9 +95,18 @@ select {
 	.reactor-commands {
 		width: 15%;
 		margin-left: 0;
+		
 		.button-stack {
 			display: flex; 
 			flex-direction: column;
+		}
+
+		#reactor-stop-button {
+			background-color: $mc-red;
+
+			&:disabled {
+				background-color: $mc-orangegrey;
+			}
 		}
 	}	
 
@@ -152,3 +161,4 @@ select {
 		}
 	}
 }
+

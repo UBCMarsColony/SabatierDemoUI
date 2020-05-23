@@ -20,7 +20,8 @@ import * as notebook from "./dist/window.notebook";
 // console.log(notebook)
 // @ts-ignore
 import * as charts from "./dist/window.charts";
-
+// @ts-ignore
+import * as rtns from "./dist/routineprocessor";
 
 // IIFE To initialize the window
 function init() {
@@ -38,10 +39,19 @@ function init() {
 	serial.bind(status_indicator.update, SerialBinding.STATUS)
 	serial.bind(reactor_data.update,     SerialBinding.DATA)
 	serial.bind(charts.primary.update,   SerialBinding.DATA)
+
+	rtns.init();
 }
 
 function loop () {
-	serial.run()
+	serial.run();
+	
+	let b0 = document.getElementById("connect-toggle-button") as HTMLButtonElement;
+	b0.innerHTML = serial.connected() ? "Disconnect" : "Connect";
+	let b1 = document.getElementById("reactor-stop-button") as HTMLButtonElement;
+	b1.disabled = !serial.connected();
+	let b2 = document.getElementById("execute-command-button") as HTMLButtonElement;
+	b2.disabled = !serial.connected();
 }
 
 
@@ -50,41 +60,4 @@ function loop () {
 $(init);  
 // Calls the loop function routinely after the window completely loads
 $(document).ready(() => setInterval(loop, 500));
-
-function routine_connect_toggle()
-{
-	if (serial.connected())
-		routine_disconnect();
-	else
-		routine_connect();
-}
-
-function routine_connect()
-{
-	if (serial.open())
-	{
-		notebook.append("Reactor Connection Opened!");
-	}
-	else
-	{
-		notebook.append("Reactor Connection Failed", notebook.ERROR);
-	}
-}
-
-function routine_disconnect()
-{
-	serial.close();
-	status_indicator.update(status_indicator.DISCONNECTED);
-	notebook.append("Reactor Connection Terminated");
-}
-
-function routine_start()
-{
-	notebook.append("Start Routine Not Implemented", notebook.ERROR);
-}
-
-function routine_stop()
-{
-	notebook.append("Stop Routine Not Implemented", notebook.ERROR);
-}
 

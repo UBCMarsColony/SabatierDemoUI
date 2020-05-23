@@ -26,9 +26,5 @@ export function update(serial_status: SerialStatus)
 		getElementById('connect-toggle-button') as HTMLButtonElement;
 	
 	inter_button.disabled = !status.interactive;
-	if (serial_status == SerialStatus.ATTACHED)
-		inter_button.innerHTML = "CONNECT"; 
-	else
-		inter_button.innerHTML = "DISCONNECT";
 }
 

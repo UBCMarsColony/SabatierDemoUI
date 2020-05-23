@@ -79,7 +79,5 @@ export function select(selector: HTMLSelectElement)
 	for (let i = 0; i < selector.options.length; i++)
 		selector.options[i].id =
 			i === selector.selectedIndex ? "selected" : "";
-
-	// This ensures the selector always shows the 'Select Plot' text rather than the last selection.
-	selector.value = "title";
 }
+
