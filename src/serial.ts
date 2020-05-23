@@ -153,11 +153,10 @@ export function open(): boolean
  */
 export function close()
 {
-	if (port == null)  // Port is assumed to be closed if null.
+	if (!connected())  
 		return;
 		
 	port.close();
-	port = null;
 }
 
 /* Author: Thomas Richmond
