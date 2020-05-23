@@ -68,6 +68,22 @@ export function init()
 	// Stub
 }
 
+/* Author: Thomas Richmond
+ * Purpose: Binds a function call to a serial event
+ *          specified by SerialBinding. The function
+ *          will be called asynchronously whenever the
+ *	    event fires.
+ * Parameter: cb [Function] - A callback function to run.
+ *			      Function must conform to specification
+ *			      as dictated by the binding type; see below.
+ *            bind_id [SerialBinding] - The type of binding:
+ *  					 * STATUS binding fires every time the 
+ *					   serial status changes;
+ *                                         function must conform to StatusBinding type.
+ *					 * DATA binding fires whenever new reactor data
+ *					   is received;
+ *					   function must conform to DataBinding type.
+ */
 export function bind(cb: Function, bind_id: SerialBinding)
 {
 	// When binding a function, we need to make sure it gets
@@ -84,6 +100,12 @@ export function bind(cb: Function, bind_id: SerialBinding)
 	}
 }
 
+/* Author: Thomas Richmond
+ * Purpose: Runs the looping logic of the serial system.
+ *          For the most part, Serial functionality is async,
+ *          but this function looks for serial connections in
+ *	    the event that we don't have a serial connection.
+ */
 export function run()
 {
 	if (connected())
@@ -109,6 +131,16 @@ export function run()
 	}).catch(alert);  // Print out the error in an alert box; //TODO change this
 }
 
+/* Author: Thomas Richmond
+ * Purpose: When a serial port is detected we can "lock on" to it. We call this attaching.
+ *          However, NO DATA TRANSFER WILL OCCUR WITH ATTACHING. We must use the open()
+ *          function to begin data transfer.
+ * Parameters: path [string] - The path to the Serial port. Examples:
+ *                               For windows: COM3
+ *                               For Linux:   dev/ttyACM0
+ *             on_receive [SerialReceiveCallback] - A function which fires whenever
+ *                                                  serial data is received from the reactor.
+ */
 function attach(path: string, on_receive: SerialReceiveCallback)
 {
 	// @ts-ignore
@@ -123,6 +155,11 @@ function attach(path: string, on_receive: SerialReceiveCallback)
 	parser.on('data', on_receive);
 }
 
+/* Author: Thomas Richmond
+ * Purpose: Starts Serial communications between the reactor and GUI.
+ *          There must be an attached serial port for this function to work;
+ *          see function attach()
+ */
 export function open(): boolean
 {
 	if (port == null)
@@ -136,22 +173,38 @@ export function open(): boolean
 	return true;
 }
 
+/* Author: Thomas Richmond
+ * Purpose: Opposite of open(); closes the serial connection between reactor and GUI.
+ */
 export function close()
 {
-	if (port == null)
+	if (port == null)  // Port is assumed to be closed if null.
 		return;
 		
 	port.close();
 	port = null;
 }
 
+/* Author: Thomas Richmond
+ * Purpose: Boolean check to see if we are connected (i.e. serial connection is open)
+ *          to a reactor. Does NOT check if we are attached.
+ * Returns: True if there is an open connection; false otherwise.
+ */
 export function connected(): boolean
 {
 	return  port == null  ? false :
-		!port.isOpen ?  false :
+		!port.isOpen  ? false :
 		true;
 }
 
+/* Author: Thomas Richmond
+ * Purpose: Parses a bytestream under the assumption that there is reactor data
+ *          contained within it. Bytestream must comply with Mars Colony Standard.
+ * Parameter: bytestream - A bytestream received from the reactor. It is assumed
+ *                         that the bytestream is valid; validations should occur 
+ *                         before calling this function.
+ * Returns: A Dataset containing the reactor data.
+ */
 function parse_reactor_data(bytestream: Bytestream): Dataset
 {
 	bytestream = bytestream.slice(6);  // Take off the indicator "RSIP>>"
