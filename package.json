@@ -43,7 +43,7 @@
     "@types/chart.js": "^2.9.5",
     "@types/jquery": "^3.3.31",
     "@types/serialport": "^7.0.4",
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "electron-window-manager": "^1.0.6",
     "fs-jetpack": "^2.1.0",
     "serialport": "^8.0.5"
